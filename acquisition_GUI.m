@@ -1,5 +1,5 @@
 function acquisition_GUI
-       clear all
+       clear 
        close all 
        clc
 %        global a
