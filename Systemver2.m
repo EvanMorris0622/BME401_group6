@@ -4,7 +4,7 @@ clear all
 close all 
 clc 
 
-
+global s
 s = daq.createSession('ni');
 
 %%Inputs%%
@@ -113,7 +113,7 @@ s.NotifyWhenDataAvailableExceeds = samplingR; %data available
 
 s.IsContinuous = true;
 prepare(s)
-s.startBackground();
+% s.startBackground();
 
 % while s.IsRunning
 % 
