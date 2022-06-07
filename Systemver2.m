@@ -7,10 +7,12 @@ clc
 
 s = daq.createSession('ni');
 
+%%Inputs%%
 addAnalogInputChannel(s,'Dev2',0,'Voltage'); %x joystick
 addAnalogInputChannel(s,'Dev2',1,'Voltage'); %y joystick
 addAnalogInputChannel(s,'Dev2',2,'Voltage'); %camera trigger pulse train 
 
+%%Outputs%%
 addAnalogOutputChannel(s,'Dev2',0,'Voltage'); %pump driver power
 addDigitalChannel(s,'dev2','Port0/Line0:1', 'OutputOnly') %0 = il1, 1 = il2
 %% Trial Specifications
@@ -31,17 +33,16 @@ refractory_periodL = 5; %in seconds
 
 %% Variable Initialization
 
-
 global scans_acquired %amount of data samples collected,
-global alreadyQueued 
-global sampling_count 
-global task_completion
-global running
-global reward_counter
-global time  
-global sample_start 
-global refractory_period
-global rperiod_count
+global alreadyQueued %reward delivery flag for next buffer of output data
+global sampling_count %count of analysis callbacks
+global task_completion %above/below-threshold flag
+global running %pump activity flag
+global reward_counter %duration passed in reward delivery, in seconds
+global time %acquisition clock   
+global sample_start %first analysis callback flag
+global refractory_period %flag
+global rperiod_count %duration elapsed in refractory period 
 
 scans_acquired = 1;
 alreadyQueued = false; %is reward queued for next delivery buffer
@@ -75,20 +76,11 @@ stop_state_pulse(1:s.Rate,1:3) = 0;
 global raw_data
 global sampled_data
 
-raw_data = zeros(1,5); %raw data acquired at s.Rate
-sampled_data = zeros(1,5); %sampled data
+raw_data = zeros(1,6); %raw data acquired at s.Rate
+sampled_data = zeros(1,6); %sampled data
 
 
-%% Acquisition System and Visualization
-
-s.queueOutputData(off_state_pulse)
-
-lh = s.addlistener('DataAvailable', @(src,event) analyzeSignal(src,event));
-lh2 = s.addlistener('DataRequired',@(src,event) sendData(src,event));
-s.NotifyWhenScansQueuedBelow =  s.Rate; %data required
-s.NotifyWhenDataAvailableExceeds = samplingR; %data available
-
-
+%% Visualization
 global min 
 global max 
 
@@ -112,25 +104,31 @@ ylabel(yLabel, 'FontSize', 15);
 axis([min max min max]);
 
 %% 
+s.queueOutputData(off_state_pulse)
+
+lh = s.addlistener('DataAvailable', @(src,event) analyzeSignal(src,event));
+lh2 = s.addlistener('DataRequired',@(src,event) sendData(src,event));
+s.NotifyWhenScansQueuedBelow =  s.Rate; %data required
+s.NotifyWhenDataAvailableExceeds = samplingR; %data available
 
 s.IsContinuous = true;
 prepare(s)
 s.startBackground();
 
-while s.IsRunning
-
-    switch(trial_type)
-        case 0 
-
-        case 1
-%             pause(trial_time+1)
-            stop(s) 
-            disp(['Trial Ended at: ' num2str(trial_time) ' seconds'])
-            raw_data(1,:) = []; %remove first  row used to initialize table
-            saveData(raw_data,sampled_data, s.Rate)
-    end
-
-end
+% while s.IsRunning
+% 
+%     switch(trial_type)
+%         case 0 
+% 
+%         case 1
+% %             pause(trial_time+1)
+%             stop(s) 
+%             disp(['Trial Ended at: ' num2str(trial_time) ' seconds'])
+%             raw_data(1,:) = []; %remove first  row used to initialize table
+%             saveData(raw_data,sampled_data, s.Rate)
+%     end
+% 
+% end
 
 
 delete(lh)
