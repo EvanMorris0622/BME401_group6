@@ -119,7 +119,7 @@ while ishandle(plotgraph)
 end
 
 stop(s);
-cleanData();%edit input variables once made 
+saveData();%edit input variables once made 
 
 % s.startBackground();
 
