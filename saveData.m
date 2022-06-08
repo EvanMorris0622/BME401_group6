@@ -19,8 +19,8 @@ function saveData(rawdata, sampleddata, rate)
     raw.Properties.VariableNames(1:6) = {'Time (s)', 'X [V]', 'Y [V]', 'Radius [V]', 'Threshold Measured', 'Trigger Pulse'};
     sampled.Properties.VariableNames(1:6) = {'Time (s)', 'X [V]', 'Y [V]', 'Radius [V]', 'Threshold Measured', 'Trigger Pulse'};
 
-    rawfilename = strjoin(cat(1, "joystick_rawdata_", c(1:5)', ".csv")); %saved file name 
-    sampledfilename = strjoin(cat(1, "joystick_sampleddata_", c(1:5)', ".csv")); %saved file name 
+    rawfilename = strrep(strjoin(cat(1, "joystick_rawdata_", c(1:5)', ".csv")), ' ' , '_'); %saved file name 
+    sampledfilename = strrep(strjoin(cat(1, "joystick_sampleddata_", c(1:5)', ".csv")), ' ' , '_'); %saved file name 
 
     raw_path = fullfile([pwd '\Data'], rawfilename);
     sampled_path = fullfile([pwd '\Data'], sampledfilename); 

@@ -1,10 +1,10 @@
 function joystickTest
 global a
 global min; global max;
-global t 
+global on 
 
 a = arduino('COM3', 'Uno'); 
-on = true; 
+on = false; 
 max = 5;
 min = 0;
 sampling_rate = 250; 
@@ -17,11 +17,10 @@ delay = 0.25;
 
 tStart = tic; 
 while(on)
-    val = toc(tStart);
-    if(val>=current_time)
+    toc(tStart)
+    if()>current_time)
         current_time = current_time + sampling_rate; 
         x = readVoltage(a,'A1'); y = readVoltage(a,'A0');
-        disp("Time" + string(val));
         
     end
 

@@ -1,3 +1,3 @@
-function cleanData()
-
+function cleanData(raw, sampled)
+    
 end 
