@@ -115,8 +115,7 @@ s.IsContinuous = true;
 prepare(s)
 
 global datafig
-datafig = uifigure;
-initializeFigure(); 
+datafig = uifigure; 
 
 while ishandle(plotgraph) 
     

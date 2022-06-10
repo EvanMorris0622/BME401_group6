@@ -1,10 +1,5 @@
-%% Initiate DAQ Session
+function system_ver3
 
-clear all 
-close all 
-clc 
-
-global s
 s = daq.createSession('ni');
 
 %%Inputs%%
@@ -15,6 +10,7 @@ addAnalogInputChannel(s,'Dev2',2,'Voltage'); %camera trigger pulse train
 %%Outputs%%
 addAnalogOutputChannel(s,'Dev2',0,'Voltage'); %pump driver power
 addDigitalChannel(s,'dev2','Port0/Line0:1', 'OutputOnly') %0 = il1, 1 = il2
+
 %% Trial Specifications
 
 global samplingR
@@ -81,32 +77,13 @@ sampled_data = zeros(1,6); %sampled data
 
 
 %% Visualization
-global min 
-global max 
 
-plotTitle = 'Live Joystick Position'; 
-xLabel = 'X'; 
-yLabel = 'Y';
-max = 5;
-min = 0;
+acqGui = createGUI(s);
+%% Start Continuous Background Data Acquisition 
 
-x = 2.5; 
-y = 2.5;
-xData = 0; 
-yData = 0; 
-count = 0; 
-
-global plotgraph
-plotgraph = plot(x,y,'b.','MarkerSize', 8); 
-title(plotTitle, 'FontSize', 15); 
-xlabel(xLabel, 'FontSize', 15);
-ylabel(yLabel, 'FontSize', 15);
-axis([min max min max]);
-
-%% 
 s.queueOutputData(off_state_pulse)
 
-lh = s.addlistener('DataAvailable', @(src,event) analyzeSignal(src,event));
+lh = s.addlistener('DataAvailable', @(src,event) analyzeSignal(src,event,acqGui));
 lh2 = s.addlistener('DataRequired',@(src,event) sendData(src,event));
 s.NotifyWhenScansQueuedBelow =  s.Rate; %data required
 s.NotifyWhenDataAvailableExceeds = samplingR; %data available
@@ -114,37 +91,10 @@ s.NotifyWhenDataAvailableExceeds = samplingR; %data available
 s.IsContinuous = true;
 prepare(s)
 
-global datafig
-datafig = uifigure;
-initializeFigure(); 
-
-while ishandle(plotgraph) 
-    
+while s.Running
+   pause(0.5)  
 end
 
-stop(s);
-saveData();%edit input variables once made 
-
-% s.startBackground();
-
-% while s.IsRunning
-% 
-%     switch(trial_type)
-%         case 0 
-% 
-%         case 1
-% %             pause(trial_time+1)
-%             stop(s) 
-%             disp(['Trial Ended at: ' num2str(trial_time) ' seconds'])
-%             raw_data(1,:) = []; %remove first  row used to initialize table
-%             saveData(raw_data,sampled_data, s.Rate)
-%     end
-% 
-% end
-
-
-delete(lh)
-delete(lh2)
-
-
-
+%Disconnect from hardware 
+delete(s) 
+end

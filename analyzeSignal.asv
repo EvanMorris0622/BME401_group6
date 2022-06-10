@@ -57,7 +57,7 @@ function analyzeSignal(src,evt, acqGui)
         
         if(~sample_start)
 %             sampled_data = cat(2,evt.TimeStamps(1),mean(evt.Data(:,1)),mean(evt.Data(:,2)),r,task_completion);
-            sampled_data = cat(2,evt.TimeStamps(1),evt.Data(end,1),evt.Data(end,2),r,task_completion,evt.Data(:,3));
+            sampled_data = cat(2,evt.TimeStamps(1),evt.Data(end,1),evt.Data(end,2),r,task_completion);
 
             sample_start = true;
         else
@@ -65,8 +65,7 @@ function analyzeSignal(src,evt, acqGui)
         end
 
         %%%Update Plot 
-        set(acqGui.LivePlot, 'XData', evt.Data(end,1), ...
-                             'YData', evt.Data(end,2)); 
+        updatePlot(evt.Data(end,1), evt.Data(end,2))
         
         disp(scans_acquired)
         scans_acquired = scans_acquired + 1; 
