@@ -115,8 +115,12 @@ s.IsContinuous = true;
 prepare(s)
 
 global datafig
-datafig = uifigure;
-initializeFigure(); 
+datafig = figure(); 
+xlim(datafig, [0 5]);
+ylim(datafig, [0 5]);
+
+% datafig = uifigure;
+% initializeFigure(); 
 
 while ishandle(plotgraph) 
     

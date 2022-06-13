@@ -8,8 +8,9 @@ function analyzeSignal(src,evt, acqGui)
     global sampling_count
     global sample_start
     global task_completion
+    global datafig
 
-    r = sqrt((((evt.Data(end,1))-2.5).^2 + ((evt.Data(end,2))-2.5).^2));
+    r = sqrt((((evt.Data(1,1))-2.5).^2 + ((evt.Data(1,2))-2.5).^2));
 %     avg_ext = mean(r)- sqrt(2.6^2 + 2.8^2);
 
     if(sampling_count == src.Rate/samplingR)
@@ -57,16 +58,19 @@ function analyzeSignal(src,evt, acqGui)
         
         if(~sample_start)
 %             sampled_data = cat(2,evt.TimeStamps(1),mean(evt.Data(:,1)),mean(evt.Data(:,2)),r,task_completion);
-            sampled_data = cat(2,evt.TimeStamps(1),evt.Data(end,1),evt.Data(end,2),r,task_completion,evt.Data(:,3));
+            sampled_data = cat(2,evt.TimeStamps(1),evt.Data(1,1),evt.Data(1,2),r,task_completion,evt.Data(:,3));
 
             sample_start = true;
         else
-            sampled_data = cat(1,sampled_data, cat(2,evt.TimeStamps(end),mean(evt.Data(:,1)),mean(evt.Data(:,2)),r,task_completion));
+            sampled_data = cat(1,sampled_data, cat(2,evt.TimeStamps(1),evt.Data(1,1),evt.Data(1,2),r,task_completion));
         end
 
         %%%Update Plot 
-        set(acqGui.LivePlot, 'XData', evt.Data(end,1), ...
-                             'YData', evt.Data(end,2)); 
+%         set(acqGui.LivePlot, 'XData', evt.Data(end,1), ...
+%                              'YData', evt.Data(end,2)); 
+%         
+        set(datafig, 'XData', evt.Data(1,1), ...
+                     'YData', evt.Data(1,2)); 
         
         disp(scans_acquired)
         scans_acquired = scans_acquired + 1; 
