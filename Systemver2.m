@@ -4,8 +4,31 @@ clear all
 close all 
 clc 
 
+%% 
+
 global s
 s = daq.createSession('ni');
+s.Rate = 10000;
+s.IsContinuous = true;
+% s.DurationInSeconds = 30; 
+%% Pump Pulse States
+
+global on_state_pulse
+global off_state_pulse 
+global stop_state_pulse
+
+off_state_pulse(1:s.Rate, 1) = 0; %pump power
+off_state_pulse(1:s.Rate,2) = 1; %digital pin (il1)
+off_state_pulse(1:s.Rate,3) = 1; %digital pin (il2)
+
+on_state_pulse(1:s.Rate,1)  = 5; %pump power
+on_state_pulse(1:s.Rate,2) = 0;
+on_state_pulse(1:s.Rate,3) = 1;
+
+stop_state_pulse(1:s.Rate,1:3) = 0;
+
+% release(s)
+%% 
 
 %%Inputs%%
 addAnalogInputChannel(s,'Dev2',0,'Voltage'); %x joystick
@@ -15,6 +38,9 @@ addAnalogInputChannel(s,'Dev2',2,'Voltage'); %camera trigger pulse train
 %%Outputs%%
 addAnalogOutputChannel(s,'Dev2',0,'Voltage'); %pump driver power
 addDigitalChannel(s,'dev2','Port0/Line0:1', 'OutputOnly') %0 = il1, 1 = il2
+
+s.queueOutputData(off_state_pulse);
+
 %% Trial Specifications
 
 global samplingR
@@ -28,7 +54,7 @@ samplingR = s.Rate/4; %sampling rate
 trial_type = 1; %0=manual rewarding, 1=experimental trial
 trial_time = 5;  %trial length, in seconds
 reward_length   = 3;  %in seconds
-threshold = 1.2; %min = 0, max = 2.5
+threshold = 1.8; %min = 0, max = 2.5
 refractory_periodL = 5; %in seconds
 
 %% Variable Initialization
@@ -50,26 +76,11 @@ sampling_count = 0; %sampling_count*samplingR = time elapsed in sampling buffer
 task_completion = false; %threshold state
 running = false; %infusion pump state
 reward_counter = 0; %number of seconds reward delivered
-time = -1; %time counter for stopping acquisition
+time = 0; %time counter for stopping acquisition
 sample_start = false; %used for first sample storage
 refractory_period = false; 
 rperiod_count = 0;
 
-%% Pump Pulse States
-
-global on_state_pulse
-global off_state_pulse 
-global stop_state_pulse
-
-off_state_pulse(1:s.Rate, 1) = 0; %pump power
-off_state_pulse(1:s.Rate,2) = 1; %digital pin (il1)
-off_state_pulse(1:s.Rate,3) = 1; %digital pin (il2)
-
-on_state_pulse(1:s.Rate,1)  = 5; %pump power
-on_state_pulse(1:s.Rate,2) = 0;
-on_state_pulse(1:s.Rate,3) = 1;
-
-stop_state_pulse(1:s.Rate,1:3) = 0;
 
 %% Data Storage Variable
 
@@ -89,45 +100,60 @@ xLabel = 'X';
 yLabel = 'Y';
 max = 5;
 min = 0;
-
+global x
+global y
 x = 2.5; 
 y = 2.5;
+
+
 xData = 0; 
 yData = 0; 
 count = 0; 
 
 global plotgraph
-plotgraph = plot(x,y,'b.','MarkerSize', 8); 
+plotgraph = plot(x,y,'b.','MarkerSize', 16); 
+% linkdata on
+plotgraph.XDataSource = 'x'; 
+plotgraph.YDataSource = 'y'; 
 title(plotTitle, 'FontSize', 15); 
 xlabel(xLabel, 'FontSize', 15);
 ylabel(yLabel, 'FontSize', 15);
 axis([min max min max]);
 
 %% 
-s.queueOutputData(off_state_pulse)
-
 lh = s.addlistener('DataAvailable', @(src,event) analyzeSignal(src,event));
 lh2 = s.addlistener('DataRequired',@(src,event) sendData(src,event));
 s.NotifyWhenScansQueuedBelow =  s.Rate; %data required
 s.NotifyWhenDataAvailableExceeds = samplingR; %data available
 
-s.IsContinuous = true;
 prepare(s)
+startBackground(s);
+% startForeground(s);
+% prepare(s)
 
-global datafig
-datafig = figure(); 
-xlim(datafig, [0 5]);
-ylim(datafig, [0 5]);
+% global datafig
+% datafig = figure; 
+% linkdata on
+% xlim([0 5]);
+% ylim([0 5]);
 
 % datafig = uifigure;
 % initializeFigure(); 
 
-while ishandle(plotgraph) 
-    
-end
+% while(s.Running) 
+%     
+% end
+% pause(10)
 
+% while ishandle(plotgraph)
+    
+% end
+
+
+pause(30)
 stop(s);
-saveData();%edit input variables once made 
+
+% saveData();%edit input variables once made 
 
 % s.startBackground();
 

@@ -13,8 +13,8 @@ function sendData(src,evt)
     global rperiod_count
     global refractory_periodL
     
-    time  = time+1;
-    disp(time)
+    
+    disp('Time Elapsed: ' + string(time))
 
     if(reward_counter == reward_length)
         disp('Enter reward = reward length')
@@ -68,4 +68,6 @@ function sendData(src,evt)
                     end
             end
     end
+    disp('________________________');
+    time = time+1;
 end
