@@ -48,14 +48,16 @@ global trial_time
 global reward_length
 global threshold
 global refractory_periodL
+global th 
 
 s.Rate = 10000; %acquisition rate from DAQ
 samplingR = s.Rate/4; %sampling rate 
 trial_type = 1; %0=manual rewarding, 1=experimental trial
 trial_time = 5;  %trial length, in seconds
 reward_length   = 3;  %in seconds
-threshold = 1.8; %min = 0, max = 2.5
+threshold = 1.25; %min = 0, max = 2.5
 refractory_periodL = 5; %in seconds
+th = 0:pi/50:2*pi; 
 
 %% Variable Initialization
 
@@ -100,25 +102,25 @@ xLabel = 'X';
 yLabel = 'Y';
 max = 5;
 min = 0;
-global x
-global y
-x = 2.5; 
-y = 2.5;
+% global x
+% global y
+% x = 2.5; 
+% y = 2.5;
 
 
 xData = 0; 
 yData = 0; 
 count = 0; 
 
-global plotgraph
-plotgraph = plot(x,y,'b.','MarkerSize', 16); 
-% linkdata on
-plotgraph.XDataSource = 'x'; 
-plotgraph.YDataSource = 'y'; 
-title(plotTitle, 'FontSize', 15); 
-xlabel(xLabel, 'FontSize', 15);
-ylabel(yLabel, 'FontSize', 15);
-axis([min max min max]);
+% global plotgraph
+% % plotgraph = plot(x,y,'b.','MarkerSize', 16); 
+% % linkdata on
+% plotgraph.XDataSource = 'x'; 
+% plotgraph.YDataSource = 'y'; 
+% title(plotTitle, 'FontSize', 15); 
+% xlabel(xLabel, 'FontSize', 15);
+% ylabel(yLabel, 'FontSize', 15);
+% axis([min max min max]);
 
 %% 
 lh = s.addlistener('DataAvailable', @(src,event) analyzeSignal(src,event));
